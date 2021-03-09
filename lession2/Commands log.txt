@@ -1,0 +1,57 @@
+ 1048  sudo mysql -u root -p
+ 1049  snapd
+ 1050  sudo apt update
+ 1051  sudo apt install snapd
+ 1054  sudo snap install dbeaver-ce
+ 1057  sudo mysql -u dbeaver -p
+ 1058  mysqldump example > example.sql
+ 1059  mysqldump -u dbeaver -p example > example.sql
+ 1066  mysql -u dbeaver -p sample < example.sql
+
+
+MariaDB [(none)]> create database example;
+Query OK, 1 row affected (0.001 sec)
+
+Здесь организовываю бд при помощи phpmyadmin
+
+trogl@raspberrypi4byTrogl:~ $ mysqldump -u dbeaver -p example > example.sql
+Enter password:
+trogl@raspberrypi4byTrogl:~ $ mysql -u dbeaver -p sample < example.sql
+Enter password:
+trogl@raspberrypi4byTrogl:~ $ mysql -u dbeaver -p
+Enter password:
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 216
+Server version: 10.3.27-MariaDB-0+deb10u1 Raspbian 10
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> use sample;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+MariaDB [sample]> show tables;
++------------------+
+| Tables_in_sample |
++------------------+
+| users            |
++------------------+
+1 row in set (0.001 sec)
+
+MariaDB [sample]> select * from users;
++----+-----------+
+| id | name      |
++----+-----------+
+|  1 | Паша      |
+|  2 | Петя      |
+|  3 | Вася      |
+|  4 | Витя      |
+|  5 | Коля      |
++----+-----------+
+5 rows in set (0.001 sec)
+
+MariaDB [sample]> quit
+Bye
