@@ -1,0 +1,10 @@
+1. Составьте список пользователей users, которые осуществили хотя бы один заказ orders в интернет магазине.
+SELECT * FROM `users`WHERE id in (SELECT user_id FROM orders WHERE user_id is not null); #так тоже работает
+SELECT * FROM `users` WHERE EXISTS (SELECT user_id FROM orders WHERE user_id=users.id);
+
+2.Выведите список товаров products и разделов catalogs, который соответствует товару.
+SELECT 
+id, name, 
+(SELECT name FROM catalogs WHERE id=products.catalog_id) AS category,
+price 
+FROM `products`;
