@@ -1,0 +1,52 @@
+1. В базе данных shop и sample присутствуют одни и те же таблицы, учебной базы данных. Переместите запись id = 1 из таблицы shop.users в таблицу sample.users. Используйте транзакции.
+START TRANSACTION;
+INSERT INTO sample.users SELECT * FROM shop.users WHERE id = 1;
+COMMIT;
+SELECT * FROM users; //	1 Геннадий 1990-10-05 2021-07-22 23:08:13 2021-07-22 23:08:13
+
+2. Создайте представление, которое выводит название name товарной позиции из таблицы products и соответствующее название каталога name из таблицы catalogs.
+CREATE OR REPLACE VIEW prods_view(prod_id, prod_name, cat_name) AS
+SELECT p.id AS prod_id, p.name, cat.name
+FROM products AS p
+LEFT JOIN catalogs AS cat 
+ON p.catalog_id = cat.id;
+SELECT * FROM prods_view;
+
+3. Создайте двух пользователей которые имеют доступ к базе данных shop. Первому пользователю shop_read должны быть доступны только запросы на чтение данных, второму пользователю shop — любые операции в пределах базы данных shop.
+DROP USER IF EXISTS 'shop_read'@'localhost';
+DROP USER IF EXISTS 'shop'@'localhost';
+
+CREATE USER 'shop_read'@'localhost' IDENTIFIED BY '654321';
+GRANT SELECT ON shop.* TO 'shop_read'@'localhost';
+
+CREATE USER 'shop'@'localhost' IDENTIFIED BY '1234567';
+GRANT ALL PRIVILEGES ON shop.* TO 'shop'@'localhost';
+
+4.1.Создайте хранимую функцию hello(), которая будет возвращать приветствие, в зависимости от текущего времени суток. С 6:00 до 12:00 функция должна возвращать фразу "Доброе утро", с 12:00 до 18:00 функция должна возвращать фразу "Добрый день", с 18:00 до 00:00 — "Добрый вечер", с 00:00 до 6:00 — "Доброй ночи".
+DROP PROCEDURE IF EXISTS hello;
+DELIMITER //
+CREATE PROCEDURE hello()
+BEGIN
+	IF(CURTIME() BETWEEN '06:00:00' AND '12:00:00') THEN
+		SELECT 'Доброе утро';
+	ELSEIF(CURTIME() BETWEEN '12:00:01' AND '18:00:00') THEN
+		SELECT 'Добрый день';
+	ELSEIF(CURTIME() BETWEEN '18:00:01' AND '00:00:00') THEN
+		SELECT 'Добрый вечер';
+	ELSE 
+		SELECT 'Доброй ночи';
+	END IF;
+END//
+DELIMITER ;
+
+4.2.В таблице products есть два текстовых поля: name с названием товара и description с его описанием. Допустимо присутствие обоих полей или одно из них. Ситуация, когда оба поля принимают неопределенное значение NULL неприемлема. Используя триггеры, добейтесь того, чтобы одно из этих полей или оба поля были заполнены. При попытке присвоить полям NULL-значение необходимо отменить операцию.
+DROP TRIGGER IF EXISTS notNull;
+DELIMITER //
+CREATE TRIGGER notNull BEFORE INSERT ON products
+FOR EACH ROW 
+BEGIN 
+IF (isnull(NEW.name) || isnull(NEW.description)) THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "Поле не может быть нулевым!";
+END IF;
+END//
+DELIMITER ;
